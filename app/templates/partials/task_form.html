@@ -77,7 +77,7 @@
         <!-- Tags -->
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-            <!-- Preserve the internal "favorite" tag across edits via hidden field -->
+            <!-- Preserve the internal "fav" tag across edits via hidden field -->
             <input type="hidden" name="is_favorite" value="{{ '1' if is_edit and task.is_favorite else '0' }}">
             <input
                 type="text"

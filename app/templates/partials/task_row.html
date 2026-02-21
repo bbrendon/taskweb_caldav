@@ -85,8 +85,8 @@
                     </span>
                     {% endif %}
 
-                    <!-- Tags (exclude internal "favorite" tag) -->
-                    {% for tag in task.tags if tag != "favorite" %}
+                    <!-- Tags (exclude internal "fav" tag) -->
+                    {% for tag in task.tags if tag != "fav" %}
                     <span class="inline-flex items-center text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-600">
                         {{ tag }}
                     </span>

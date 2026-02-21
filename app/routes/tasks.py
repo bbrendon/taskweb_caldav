@@ -206,10 +206,10 @@ async def update_task(
             pass
 
     tag_list = [t.strip() for t in (tags or "").split(",") if t.strip()]
-    # Re-inject the internal "favorite" tag if the task was a favourite;
+    # Re-inject the internal "fav" tag if the task was a favourite;
     # the edit form hides it from the visible tags field to avoid confusion.
-    if is_favorite == "1" and "favorite" not in tag_list:
-        tag_list.append("favorite")
+    if is_favorite == "1" and "fav" not in tag_list:
+        tag_list.append("fav")
 
     rrule = None
     if recurrence is not None:
@@ -264,10 +264,10 @@ async def toggle_favorite(uid: str, request: Request):
     if not task:
         return Response(status_code=404)
     tags = task.tags.copy()
-    if "favorite" in tags:
-        tags.remove("favorite")
+    if "fav" in tags:
+        tags.remove("fav")
     else:
-        tags.append("favorite")
+        tags.append("fav")
     updated = caldav_client.update_todo(cal, uid, TaskUpdate(tags=tags))
     if not updated:
         return Response(status_code=500)

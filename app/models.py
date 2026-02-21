@@ -41,7 +41,7 @@ class Task(BaseModel):
 
     @property
     def is_favorite(self) -> bool:
-        return "favorite" in self.tags
+        return "fav" in self.tags
 
 
 class TaskCreate(BaseModel):
