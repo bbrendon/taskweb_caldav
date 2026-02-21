@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+caldav
+icalendar
+jinja2
+python-multipart
+python-dotenv
+pydantic-settings
+itsdangerous

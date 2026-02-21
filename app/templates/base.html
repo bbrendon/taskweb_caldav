@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskWeb</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .htmx-indicator { display: none; }
+        .htmx-request .htmx-indicator { display: inline; }
+        .htmx-request.htmx-indicator { display: inline; }
+    </style>
+</head>
+<body class="h-full bg-gray-50 text-gray-900">
+
+<!-- Modal overlay -->
+<div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="closeModal()"></div>
+
+<!-- Modal container -->
+<div id="modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+        <div id="modal-content">
+            <!-- Form loaded via HTMX -->
+        </div>
+    </div>
+</div>
+
+<div class="flex h-full min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
+        <div class="p-4 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-900">TaskWeb</h1>
+            <p class="text-xs text-gray-500 mt-0.5">CalDAV Tasks</p>
+        </div>
+
+        <!-- New Task Button -->
+        <div class="p-3 border-b border-gray-200">
+            <button
+                class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors"
+                hx-get="/tasks/new"
+                hx-target="#modal-content"
+                onclick="openModal()"
+            >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                New Task
+            </button>
+        </div>
+
+        <!-- Quick Filters -->
+        <nav class="p-3 border-b border-gray-200">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Quick Filters</p>
+            <ul class="space-y-1">
+                <li>
+                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                       hx-get="/tasks" hx-target="#task-list" hx-push-url="/tasks"
+                       data-filter="all">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        All Tasks
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                       hx-get="/tasks?due_filter=today" hx-target="#task-list"
+                       data-filter="today">
+                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Today
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                       hx-get="/tasks?due_filter=overdue" hx-target="#task-list"
+                       data-filter="overdue">
+                        <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        Overdue
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                       hx-get="/tasks?due_filter=week" hx-target="#task-list"
+                       data-filter="week">
+                        <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        This Week
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                       hx-get="/tasks?tag=favorite" hx-target="#task-list"
+                       data-filter="favorites">
+                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                        Favorites
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                       hx-get="/tasks?status=completed&show_completed=true" hx-target="#task-list"
+                       data-filter="completed">
+                        <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Completed
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Tags -->
+        <div class="p-3 flex-1 overflow-y-auto">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Tags</p>
+            <div id="sidebar-tags" class="flex flex-wrap gap-1">
+                {% if all_tags %}
+                    {% for tag in all_tags if tag != "favorite" %}
+                    <a href="#"
+                       class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 hover:bg-blue-100 hover:text-blue-700 text-gray-600 transition-colors"
+                       hx-get="/tasks?tag={{ tag }}" hx-target="#task-list">
+                        {{ tag }}
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-xs text-gray-400">No tags yet</p>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Logout -->
+        <div class="p-3 border-t border-gray-200 mt-auto">
+            <a href="/logout" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- Top bar -->
+        <header class="bg-white border-b border-gray-200 px-6 py-3">
+            <div class="flex items-center gap-3">
+                <div class="flex-1 relative">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input
+                        type="search"
+                        id="search-input"
+                        name="q"
+                        placeholder="Search tasks... (+tag, due:today, priority:H)"
+                        class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        hx-get="/search"
+                        hx-target="#task-list"
+                        hx-trigger="keyup changed delay:400ms"
+                        hx-include="[name='q']"
+                    >
+                </div>
+                <div class="text-xs text-gray-400" id="search-hint">
+                    <span class="htmx-indicator">
+                        <svg class="animate-spin w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Task list area -->
+        <div class="flex-1 overflow-y-auto p-6">
+            <div id="task-list">
+                {% block task_list %}{% endblock %}
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
