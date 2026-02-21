@@ -3,7 +3,7 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "38000:8000"
+      - "38000:38000"
     env_file:
       - .env
     volumes:
