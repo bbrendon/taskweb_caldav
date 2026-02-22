@@ -3,6 +3,7 @@ from datetime import date, datetime, timezone
 from typing import Optional
 
 import caldav
+import niquests.auth
 from icalendar import Calendar, Todo, vText, vDate, vDatetime, vRecur
 
 from app.config import settings
@@ -12,8 +13,7 @@ from app.models import Task, TaskCreate, TaskUpdate
 def get_client() -> caldav.DAVClient:
     return caldav.DAVClient(
         url=settings.CALDAV_URL,
-        username=settings.CALDAV_USERNAME,
-        password=settings.CALDAV_PASSWORD,
+        auth=niquests.auth.HTTPBasicAuth(settings.CALDAV_USERNAME, settings.CALDAV_PASSWORD),
     )
 
 
