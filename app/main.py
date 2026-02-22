@@ -8,7 +8,7 @@ from starlette.responses import RedirectResponse, Response
 
 from app.config import settings
 from app.templates_env import templates
-from app.routes import tasks, search, auth, saved_searches
+from app.routes import tasks, search, auth, saved_searches, locations
 
 app = FastAPI(title="TaskWeb CalDAV")
 
@@ -62,3 +62,4 @@ app.include_router(auth.router)
 app.include_router(tasks.router)
 app.include_router(search.router)
 app.include_router(saved_searches.router)
+app.include_router(locations.router)

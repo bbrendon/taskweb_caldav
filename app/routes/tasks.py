@@ -6,7 +6,8 @@ from fastapi.responses import HTMLResponse
 
 from app import caldav_client
 from app import saved_searches as saved_searches_lib
-from app.models import Task, TaskCreate, TaskUpdate, PRIORITY_VALUE
+from app.config import settings
+from app.models import Task, TaskCreate, TaskLocation, TaskUpdate, PRIORITY_VALUE
 from app.templates_env import templates
 
 router = APIRouter()
@@ -130,6 +131,7 @@ async def new_task_form(request: Request):
     return templates.TemplateResponse("partials/task_form.html", {
         "request": request,
         "task": None,
+        "preset_locations": settings.preset_locations,
     })
 
 
@@ -141,6 +143,7 @@ async def edit_task_form(uid: str, request: Request):
     return templates.TemplateResponse("partials/task_form.html", {
         "request": request,
         "task": task,
+        "preset_locations": settings.preset_locations,
     })
 
 
@@ -154,6 +157,11 @@ async def create_task(
     tags: str = Form(""),
     status: str = Form("NEEDS-ACTION"),
     recurrence: str = Form(""),
+    location_title: Optional[str] = Form(None),
+    location_address: Optional[str] = Form(None),
+    location_lat: Optional[str] = Form(None),
+    location_lng: Optional[str] = Form(None),
+    location_proximity: Optional[str] = Form("ARRIVE"),
 ):
     due_date = None
     if due:
@@ -168,6 +176,19 @@ async def create_task(
     if recurrence and recurrence != "none":
         rrule = recurrence
 
+    loc_alarm = None
+    if location_title and location_title.strip() and location_lat and location_lng:
+        try:
+            loc_alarm = TaskLocation(
+                title=location_title.strip(),
+                address=(location_address or "").strip(),
+                lat=float(location_lat),
+                lng=float(location_lng),
+                proximity=(location_proximity or "ARRIVE").upper(),
+            )
+        except (ValueError, TypeError):
+            pass
+
     task_data = TaskCreate(
         title=title,
         description=description or None,
@@ -176,6 +197,7 @@ async def create_task(
         tags=tag_list,
         status=status,
         recurrence=rrule,
+        location_alarm=loc_alarm,
     )
 
     cal = _get_calendar()
@@ -199,6 +221,11 @@ async def update_task(
     status: Optional[str] = Form(None),
     recurrence: Optional[str] = Form(None),
     is_favorite: str = Form("0"),
+    location_title: Optional[str] = Form(None),
+    location_address: Optional[str] = Form(None),
+    location_lat: Optional[str] = Form(None),
+    location_lng: Optional[str] = Form(None),
+    location_proximity: Optional[str] = Form("ARRIVE"),
 ):
     due_date = None
     if due:
@@ -217,6 +244,19 @@ async def update_task(
     if recurrence is not None:
         rrule = recurrence if recurrence and recurrence != "none" else None
 
+    loc_alarm = None
+    if location_title and location_title.strip() and location_lat and location_lng:
+        try:
+            loc_alarm = TaskLocation(
+                title=location_title.strip(),
+                address=(location_address or "").strip(),
+                lat=float(location_lat),
+                lng=float(location_lng),
+                proximity=(location_proximity or "ARRIVE").upper(),
+            )
+        except (ValueError, TypeError):
+            pass
+
     task_data = TaskUpdate(
         title=title,
         description=description,
@@ -225,6 +265,7 @@ async def update_task(
         tags=tag_list,
         status=status,
         recurrence=rrule,
+        location_alarm=loc_alarm,
     )
 
     cal = _get_calendar()

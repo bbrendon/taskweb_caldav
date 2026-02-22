@@ -115,3 +115,106 @@ function runSavedSearch(el) {
     if (btn) btn.classList.remove('hidden');
     htmx.ajax('GET', '/search?q=' + encodeURIComponent(q), { target: '#task-list', swap: 'innerHTML' });
 }
+
+// Location search — initialised when the task form is loaded into the modal
+function initLocationSearch() {
+    const searchInput = document.getElementById('loc-search-input');
+    const dropdown = document.getElementById('loc-dropdown');
+    if (!searchInput || !dropdown) return;
+
+    // Wire preset buttons
+    document.querySelectorAll('.loc-preset-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectLocation(JSON.parse(this.dataset.preset));
+        });
+    });
+
+    let debounceTimer = null;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const q = this.value.trim();
+        if (!q) { dropdown.classList.add('hidden'); return; }
+        debounceTimer = setTimeout(() => {
+            fetch('/locations/search?q=' + encodeURIComponent(q))
+                .then(r => r.json())
+                .then(results => {
+                    dropdown.innerHTML = '';
+                    if (!results.length) {
+                        dropdown.classList.add('hidden');
+                        return;
+                    }
+                    results.forEach((r, i) => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'w-full text-left px-3 py-2 text-sm hover:bg-blue-50 focus:bg-blue-50 focus:outline-none border-b border-gray-100 last:border-0';
+                        btn.innerHTML = '<span class="font-medium">' + escapeHtml(r.title) + '</span>' +
+                            '<br><span class="text-xs text-gray-400">' + escapeHtml(r.address) + '</span>';
+                        btn.addEventListener('click', () => selectLocation(r));
+                        dropdown.appendChild(btn);
+                    });
+                    dropdown.classList.remove('hidden');
+                })
+                .catch(() => dropdown.classList.add('hidden'));
+        }, 300);
+    });
+
+    // Keyboard: close dropdown on Escape
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') dropdown.classList.add('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function handler(e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+}
+
+function selectLocation(obj) {
+    document.getElementById('loc-title-input').value = obj.title || '';
+    document.getElementById('loc-address-input').value = obj.address || '';
+    document.getElementById('loc-lat-input').value = obj.lat || '';
+    document.getElementById('loc-lng-input').value = obj.lng || '';
+    document.getElementById('loc-selected-label').textContent = obj.title || '';
+
+    const picker = document.getElementById('loc-picker');
+    const selected = document.getElementById('loc-selected');
+    if (picker) picker.classList.add('hidden');
+    if (selected) selected.classList.remove('hidden');
+
+    const dropdown = document.getElementById('loc-dropdown');
+    if (dropdown) dropdown.classList.add('hidden');
+}
+
+function clearLocation() {
+    document.getElementById('loc-title-input').value = '';
+    document.getElementById('loc-address-input').value = '';
+    document.getElementById('loc-lat-input').value = '';
+    document.getElementById('loc-lng-input').value = '';
+    document.getElementById('loc-selected-label').textContent = '';
+
+    const searchInput = document.getElementById('loc-search-input');
+    if (searchInput) searchInput.value = '';
+
+    const picker = document.getElementById('loc-picker');
+    const selected = document.getElementById('loc-selected');
+    if (picker) picker.classList.remove('hidden');
+    if (selected) selected.classList.add('hidden');
+}
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+// Re-wire location search when the task form is loaded into the modal via HTMX
+document.addEventListener('htmx:afterSwap', function(e) {
+    if (e.detail.target && e.detail.target.id === 'modal-content') {
+        initLocationSearch();
+    }
+});

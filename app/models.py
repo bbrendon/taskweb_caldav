@@ -7,6 +7,14 @@ PRIORITY_LABEL = {0: "none", 1: "H", 5: "M", 9: "L"}
 PRIORITY_VALUE = {"none": 0, "H": 1, "M": 5, "L": 9}
 
 
+class TaskLocation(BaseModel):
+    title: str
+    address: str = ""
+    lat: float
+    lng: float
+    proximity: str = "ARRIVE"
+
+
 class Task(BaseModel):
     uid: str
     title: str
@@ -18,6 +26,7 @@ class Task(BaseModel):
     recurrence: Optional[str] = None  # RRULE string
     completed: Optional[datetime] = None
     calendar_name: Optional[str] = None
+    location_alarm: Optional[TaskLocation] = None
 
     @property
     def priority_label(self) -> str:
@@ -52,6 +61,7 @@ class TaskCreate(BaseModel):
     tags: list[str] = []
     status: str = "NEEDS-ACTION"
     recurrence: Optional[str] = None
+    location_alarm: Optional[TaskLocation] = None
 
 
 class TaskUpdate(BaseModel):
@@ -62,3 +72,4 @@ class TaskUpdate(BaseModel):
     tags: Optional[list[str]] = None
     status: Optional[str] = None
     recurrence: Optional[str] = None
+    location_alarm: Optional[TaskLocation] = None
