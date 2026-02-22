@@ -1,3 +1,23 @@
+// Sidebar management (mobile slide-over)
+function openSidebar() {
+    document.getElementById('sidebar').classList.remove('-translate-x-full');
+    document.getElementById('sidebar-backdrop').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.add('-translate-x-full');
+    document.getElementById('sidebar-backdrop').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+// Auto-close sidebar on mobile when any link inside it is clicked
+document.getElementById('sidebar').addEventListener('click', function(e) {
+    if (window.innerWidth < 768 && e.target.closest('a, button[hx-get]')) {
+        closeSidebar();
+    }
+});
+
 // Modal management
 function openModal() {
     document.getElementById('modal').classList.remove('hidden');
@@ -11,9 +31,12 @@ function closeModal() {
     document.body.style.overflow = '';
 }
 
-// Close modal on Escape key
+// Close modal or sidebar on Escape key
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape') {
+        closeModal();
+        closeSidebar();
+    }
 });
 
 // Recurrence select handler
