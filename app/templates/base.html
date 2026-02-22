@@ -24,17 +24,17 @@
         .htmx-request.htmx-indicator { display: inline; }
     </style>
 </head>
-<body class="h-full bg-gray-50 text-gray-900">
+<body class="h-full bg-gray-900 text-gray-100">
 
 <!-- Sidebar backdrop (mobile only) -->
-<div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden md:hidden" onclick="closeSidebar()"></div>
+<div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-60 z-20 hidden md:hidden" onclick="closeSidebar()"></div>
 
 <!-- Modal overlay -->
-<div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="closeModal()"></div>
+<div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden" onclick="closeModal()"></div>
 
 <!-- Modal container -->
 <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         <div id="modal-content">
             <!-- Form loaded via HTMX -->
         </div>
@@ -43,13 +43,13 @@
 
 <div class="flex h-full min-h-screen">
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 -translate-x-full md:translate-x-0 md:static md:inset-auto transition-transform duration-300 w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
-        <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 -translate-x-full md:translate-x-0 md:static md:inset-auto transition-transform duration-300 w-64 bg-gray-800 border-r border-gray-700 flex flex-col flex-shrink-0">
+        <div class="p-4 border-b border-gray-700 flex items-center justify-between">
             <div>
-                <h1 class="text-xl font-bold text-gray-900">TaskWeb</h1>
+                <h1 class="text-xl font-bold text-gray-100">TaskWeb</h1>
                 <p class="text-xs text-gray-500 mt-0.5">CalDAV Tasks</p>
             </div>
-            <button class="md:hidden p-1.5 rounded-lg hover:bg-gray-100 text-gray-400" onclick="closeSidebar()" aria-label="Close menu">
+            <button class="md:hidden p-1.5 rounded-lg hover:bg-gray-700 text-gray-400" onclick="closeSidebar()" aria-label="Close menu">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -57,7 +57,7 @@
         </div>
 
         <!-- New Task Button -->
-        <div class="p-3 border-b border-gray-200">
+        <div class="p-3 border-b border-gray-700">
             <button
                 class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors"
                 hx-get="/tasks/new"
@@ -72,21 +72,21 @@
         </div>
 
         <!-- Quick Filters -->
-        <nav class="p-3 border-b border-gray-200">
+        <nav class="p-3 border-b border-gray-700">
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Quick Filters</p>
             <ul class="space-y-1">
                 <li>
-                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-700 transition-colors"
                        hx-get="/tasks" hx-target="#task-list" hx-push-url="/"
                        data-filter="all">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                         </svg>
                         All Tasks
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-700 transition-colors"
                        hx-get="/tasks?due_filter=today" hx-target="#task-list"
                        data-filter="today">
                         <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,7 +96,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-700 transition-colors"
                        hx-get="/tasks?due_filter=overdue" hx-target="#task-list"
                        data-filter="overdue">
                         <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,7 +106,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-700 transition-colors"
                        hx-get="/tasks?due_filter=week" hx-target="#task-list"
                        data-filter="week">
                         <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,7 +116,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-700 transition-colors"
                        hx-get="/tasks?tag=fav" hx-target="#task-list"
                        data-filter="favorites">
                         <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
@@ -126,7 +126,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-100 transition-colors"
+                    <a href="#" class="sidebar-link flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-700 transition-colors"
                        hx-get="/tasks?status=completed&show_completed=true" hx-target="#task-list"
                        data-filter="completed">
                         <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,19 +148,19 @@
                 {% if all_tags %}
                     {% for tag in all_tags if tag != "fav" %}
                     <a href="#"
-                       class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 hover:bg-blue-100 hover:text-blue-700 text-gray-600 transition-colors"
+                       class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-700 hover:bg-blue-900 hover:text-blue-300 text-gray-400 transition-colors"
                        hx-get="/tasks?tag={{ tag }}" hx-target="#task-list">
                         {{ tag }}
                     </a>
                     {% endfor %}
                 {% else %}
-                    <p class="text-xs text-gray-400">No tags yet</p>
+                    <p class="text-xs text-gray-500">No tags yet</p>
                 {% endif %}
             </div>
         </div>
         <!-- Logout -->
-        <div class="p-3 border-t border-gray-200 mt-auto">
-            <a href="/logout" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+        <div class="p-3 border-t border-gray-700 mt-auto">
+            <a href="/logout" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-gray-500 hover:text-gray-300 hover:bg-gray-700 transition-colors">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
@@ -172,15 +172,15 @@
     <!-- Main content -->
     <main class="flex-1 flex flex-col overflow-hidden">
         <!-- Top bar -->
-        <header class="bg-white border-b border-gray-200 px-3 md:px-6 py-3">
+        <header class="bg-gray-800 border-b border-gray-700 px-3 md:px-6 py-3">
             <div class="flex items-center gap-2 md:gap-3">
-                <button class="md:hidden flex-shrink-0 p-1.5 rounded-lg hover:bg-gray-100 text-gray-500" onclick="openSidebar()" aria-label="Open menu">
+                <button class="md:hidden flex-shrink-0 p-1.5 rounded-lg hover:bg-gray-700 text-gray-400" onclick="openSidebar()" aria-label="Open menu">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
                 </button>
                 <div class="flex-1 relative">
-                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                     <input
@@ -188,31 +188,31 @@
                         id="search-input"
                         name="q"
                         placeholder="Search tasks... (+tag, due:today, priority:H)"
-                        class="w-full pl-10 pr-9 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        class="w-full pl-10 pr-9 py-2 bg-gray-700 border border-gray-600 text-gray-100 placeholder-gray-500 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         hx-get="/search"
                         hx-target="#task-list"
                         hx-trigger="keyup changed delay:400ms"
                         hx-include="[name='q']"
                     >
                     <button id="save-search-btn" type="button" onclick="showSavePanel()" title="Save this search"
-                        class="hidden absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors">
+                        class="hidden absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-gray-700 text-gray-500 hover:text-blue-400 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
                         </svg>
                     </button>
-                    <div id="save-search-panel" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50">
+                    <div id="save-search-panel" class="hidden absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-3 z-50">
                         <form hx-post="/saved-searches" hx-target="#saved-searches-section" hx-swap="outerHTML">
                             <input type="hidden" name="query" id="save-search-query">
                             <div class="flex gap-2">
                                 <input type="text" name="name" id="save-search-name" placeholder="Name this search..."
-                                    class="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    class="flex-1 text-sm bg-gray-700 border border-gray-600 text-gray-100 placeholder-gray-500 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 <button type="submit" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium">Save</button>
-                                <button type="button" onclick="hideSavePanel()" class="text-sm text-gray-500 hover:text-gray-700 px-2 py-1.5">Cancel</button>
+                                <button type="button" onclick="hideSavePanel()" class="text-sm text-gray-400 hover:text-gray-200 px-2 py-1.5">Cancel</button>
                             </div>
                         </form>
                     </div>
                 </div>
-                <div class="text-xs text-gray-400 flex-shrink-0" id="search-hint">
+                <div class="text-xs text-gray-500 flex-shrink-0" id="search-hint">
                     <span class="htmx-indicator">
                         <svg class="animate-spin w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

@@ -1,11 +1,11 @@
 {% set is_overdue = task.due and task.due < today and not task.is_completed %}
 {% set is_today = task.due and task.due == today %}
-<div class="task-row group flex items-start gap-3 bg-white rounded-lg border border-gray-100 px-4 py-3 hover:border-gray-200 hover:shadow-sm transition-all"
+<div class="task-row group flex items-start gap-3 bg-gray-800 rounded-lg border border-gray-700 px-4 py-3 hover:border-gray-600 hover:shadow-sm transition-all"
      id="task-{{ task.uid }}">
 
     <!-- Complete toggle -->
     <button
-        class="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full border-2 {{ 'border-green-500 bg-green-500' if task.is_completed else 'border-gray-300 hover:border-blue-400' }} transition-colors flex items-center justify-center"
+        class="flex-shrink-0 mt-0.5 w-5 h-5 rounded-full border-2 {{ 'border-green-500 bg-green-500' if task.is_completed else 'border-gray-600 hover:border-blue-400' }} transition-colors flex items-center justify-center"
         hx-post="/tasks/{{ task.uid }}/complete"
         hx-target="#task-{{ task.uid }}"
         hx-swap="outerHTML"
@@ -20,7 +20,7 @@
 
     <!-- Favorite star -->
     <button
-        class="flex-shrink-0 mt-0.5 transition-colors {{ 'text-yellow-400 hover:text-yellow-300' if task.is_favorite else 'text-gray-200 hover:text-yellow-400' }}"
+        class="flex-shrink-0 mt-0.5 transition-colors {{ 'text-yellow-400 hover:text-yellow-300' if task.is_favorite else 'text-gray-600 hover:text-yellow-400' }}"
         hx-post="/tasks/{{ task.uid }}/favorite"
         hx-target="#task-{{ task.uid }}"
         hx-swap="outerHTML"
@@ -37,7 +37,7 @@
             <div class="flex-1 min-w-0">
                 <!-- Title -->
                 <button
-                    class="text-sm font-medium text-left {{ 'line-through text-gray-400' if task.is_completed else 'text-gray-900 hover:text-blue-600' }} transition-colors"
+                    class="text-sm font-medium text-left {{ 'line-through text-gray-500' if task.is_completed else 'text-gray-100 hover:text-blue-400' }} transition-colors"
                     hx-get="/tasks/{{ task.uid }}/form"
                     hx-target="#modal-content"
                     onclick="openModal()"
@@ -47,7 +47,7 @@
 
                 <!-- Description preview -->
                 {% if task.description %}
-                <p class="text-xs text-gray-400 mt-0.5 truncate">{{ task.description }}</p>
+                <p class="text-xs text-gray-500 mt-0.5 truncate">{{ task.description }}</p>
                 {% endif %}
 
                 <!-- Meta row -->
@@ -55,9 +55,9 @@
                     <!-- Due date -->
                     {% if task.due %}
                     <span class="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded
-                        {% if is_overdue %}bg-red-100 text-red-700 font-medium
-                        {% elif is_today %}bg-yellow-100 text-yellow-700 font-medium
-                        {% else %}bg-gray-100 text-gray-600{% endif %}">
+                        {% if is_overdue %}bg-red-900 text-red-300 font-medium
+                        {% elif is_today %}bg-yellow-900 text-yellow-300 font-medium
+                        {% else %}bg-gray-700 text-gray-400{% endif %}">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
@@ -69,16 +69,16 @@
                     <!-- Priority -->
                     {% if task.priority > 0 %}
                     <span class="inline-flex items-center text-xs px-1.5 py-0.5 rounded font-medium
-                        {% if task.priority == 1 %}bg-red-100 text-red-700
-                        {% elif task.priority == 5 %}bg-orange-100 text-orange-700
-                        {% else %}bg-gray-100 text-gray-500{% endif %}">
+                        {% if task.priority == 1 %}bg-red-900 text-red-300
+                        {% elif task.priority == 5 %}bg-orange-900 text-orange-300
+                        {% else %}bg-gray-700 text-gray-400{% endif %}">
                         {{ task.priority_label }}
                     </span>
                     {% endif %}
 
                     <!-- Recurrence indicator -->
                     {% if task.recurrence %}
-                    <span class="inline-flex items-center gap-0.5 text-xs text-gray-400" title="{{ task.recurrence }}">
+                    <span class="inline-flex items-center gap-0.5 text-xs text-gray-500" title="{{ task.recurrence }}">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
@@ -91,10 +91,10 @@
                     {% if has_coords %}
                     <a href="https://maps.google.com/?q={{ task.location_alarm.lat }},{{ task.location_alarm.lng }}"
                        target="_blank" rel="noopener"
-                       class="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
+                       class="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-green-900 text-green-300 hover:bg-green-800 transition-colors"
                        title="{{ task.location_alarm.address }}">
                     {% else %}
-                    <span class="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-green-50 text-green-700"
+                    <span class="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-green-900 text-green-300"
                           title="{{ task.location_alarm.address }}">
                     {% endif %}
                         <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,7 +107,7 @@
 
                     <!-- Tags (exclude internal "fav" tag) -->
                     {% for tag in task.tags if tag != "fav" %}
-                    <span class="inline-flex items-center text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-600">
+                    <span class="inline-flex items-center text-xs px-1.5 py-0.5 rounded bg-blue-900 text-blue-300">
                         {{ tag }}
                     </span>
                     {% endfor %}
@@ -117,7 +117,7 @@
             <!-- Actions (visible on hover) -->
             <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                 <button
-                    class="p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                    class="p-1 rounded text-gray-500 hover:text-blue-400 hover:bg-blue-900 transition-colors"
                     hx-get="/tasks/{{ task.uid }}/form"
                     hx-target="#modal-content"
                     onclick="openModal()"
@@ -128,7 +128,7 @@
                     </svg>
                 </button>
                 <button
-                    class="p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    class="p-1 rounded text-gray-500 hover:text-red-400 hover:bg-red-900 transition-colors"
                     hx-delete="/tasks/{{ task.uid }}"
                     hx-target="#task-{{ task.uid }}"
                     hx-swap="outerHTML"

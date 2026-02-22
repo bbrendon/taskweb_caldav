@@ -3,16 +3,16 @@
     <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-1 text-xs text-gray-500">
             <span class="font-medium">Sort:</span>
-            <a href="#" class="px-2 py-1 rounded {{ 'bg-blue-100 text-blue-700 font-medium' if sort == 'due' else 'hover:bg-gray-100' }}"
+            <a href="#" class="px-2 py-1 rounded {{ 'bg-blue-900 text-blue-300 font-medium' if sort == 'due' else 'hover:bg-gray-700 text-gray-400' }}"
                hx-get="/tasks?sort=due" hx-target="#task-list">Due</a>
-            <a href="#" class="px-2 py-1 rounded {{ 'bg-blue-100 text-blue-700 font-medium' if sort == 'priority' else 'hover:bg-gray-100' }}"
+            <a href="#" class="px-2 py-1 rounded {{ 'bg-blue-900 text-blue-300 font-medium' if sort == 'priority' else 'hover:bg-gray-700 text-gray-400' }}"
                hx-get="/tasks?sort=priority" hx-target="#task-list">Priority</a>
-            <a href="#" class="px-2 py-1 rounded {{ 'bg-blue-100 text-blue-700 font-medium' if sort == 'title' else 'hover:bg-gray-100' }}"
+            <a href="#" class="px-2 py-1 rounded {{ 'bg-blue-900 text-blue-300 font-medium' if sort == 'title' else 'hover:bg-gray-700 text-gray-400' }}"
                hx-get="/tasks?sort=title" hx-target="#task-list">Title</a>
         </div>
         {% if search_query %}
         <div class="text-xs text-gray-500">
-            Results for <span class="font-mono font-medium text-gray-700">"{{ search_query }}"</span>
+            Results for <span class="font-mono font-medium text-gray-300">"{{ search_query }}"</span>
             &mdash; {{ tasks|length }} task{{ 's' if tasks|length != 1 else '' }}
         </div>
         {% else %}
@@ -29,12 +29,12 @@
                 {% include "partials/task_row.html" %}
             {% endfor %}
         {% else %}
-            <div class="flex flex-col items-center justify-center py-16 text-gray-400">
+            <div class="flex flex-col items-center justify-center py-16 text-gray-600">
                 <svg class="w-12 h-12 mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
-                <p class="text-sm font-medium">No tasks found</p>
-                <p class="text-xs mt-1">Try a different filter or create a new task</p>
+                <p class="text-sm font-medium text-gray-500">No tasks found</p>
+                <p class="text-xs mt-1 text-gray-600">Try a different filter or create a new task</p>
             </div>
         {% endif %}
     </div>
