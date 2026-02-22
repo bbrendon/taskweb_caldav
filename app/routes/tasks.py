@@ -5,6 +5,7 @@ from fastapi import APIRouter, Form, Request, Response
 from fastapi.responses import HTMLResponse
 
 from app import caldav_client
+from app import saved_searches as saved_searches_lib
 from app.models import Task, TaskCreate, TaskUpdate, PRIORITY_VALUE
 from app.templates_env import templates
 
@@ -90,6 +91,7 @@ async def index(request: Request):
         "tasks": pending,
         "all_tags": all_tags,
         "active_filter": "all",
+        "saved_searches": saved_searches_lib.load(),
     })
 
 

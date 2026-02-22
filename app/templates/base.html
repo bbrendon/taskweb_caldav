@@ -138,6 +138,9 @@
             </ul>
         </nav>
 
+        <!-- Saved Searches -->
+        {% include "partials/saved_searches.html" %}
+
         <!-- Tags -->
         <div class="p-3 flex-1 overflow-y-auto">
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Tags</p>
@@ -185,12 +188,29 @@
                         id="search-input"
                         name="q"
                         placeholder="Search tasks... (+tag, due:today, priority:H)"
-                        class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        class="w-full pl-10 pr-9 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         hx-get="/search"
                         hx-target="#task-list"
                         hx-trigger="keyup changed delay:400ms"
                         hx-include="[name='q']"
                     >
+                    <button id="save-search-btn" type="button" onclick="showSavePanel()" title="Save this search"
+                        class="hidden absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                        </svg>
+                    </button>
+                    <div id="save-search-panel" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50">
+                        <form hx-post="/saved-searches" hx-target="#saved-searches-section" hx-swap="outerHTML">
+                            <input type="hidden" name="query" id="save-search-query">
+                            <div class="flex gap-2">
+                                <input type="text" name="name" id="save-search-name" placeholder="Name this search..."
+                                    class="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button type="submit" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium">Save</button>
+                                <button type="button" onclick="hideSavePanel()" class="text-sm text-gray-500 hover:text-gray-700 px-2 py-1.5">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
                 <div class="text-xs text-gray-400 flex-shrink-0" id="search-hint">
                     <span class="htmx-indicator">
