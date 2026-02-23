@@ -190,6 +190,13 @@ Location alerts trigger when you arrive at or depart from a place. They are stor
 
 ---
 
+## Inspiration
+
+- [Replacing Todoist with CalDAV](https://marclewis.com/2025/06/15/replacing-todoist-with-caldav/) — the blog post that motivated this project
+- [Taskwarrior](https://taskwarrior.org/) — inspiration for the smart search syntax
+
+---
+
 ## Mobile
 
 On small screens the sidebar is hidden by default.

@@ -2,6 +2,14 @@
 
 A web interface for CalDAV task servers, built with FastAPI + HTMX + Tailwind CSS.
 
+## Screenshots
+
+![Desktop task list](docs/SCR-20260222-pmcv.png)
+
+| Mobile task list | Mobile sidebar |
+|---|---|
+| ![Mobile task list](docs/IMG_2849_preview.jpeg) | ![Mobile sidebar](docs/IMG_2848_preview.jpeg) |
+
 ## Features
 
 - View, create, edit, and delete tasks
