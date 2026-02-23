@@ -32,7 +32,7 @@ source venv/bin/activate && python run.py
 
 ```bash
 # On the server
-git clone git@github.com:bbrendon/taskweb_caldav.git /srv/taskweb_caldav
+git clone https://github.com/bbrendon/taskweb_caldav.git /srv/taskweb_caldav
 cd /srv/taskweb_caldav
 cp .env.example .env && nano .env   # fill in credentials and secrets
 
@@ -48,15 +48,15 @@ git pull && docker compose up -d --build
 
 ## Environment variables
 
-| Variable | Purpose |
-|---|---|
-| `CALDAV_URL` | CalDAV server base URL |
-| `CALDAV_USERNAME` | CalDAV username |
-| `CALDAV_PASSWORD` | CalDAV password |
-| `CALDAV_CALENDAR_NAME` | Calendar name (default: `Tasks`) |
-| `SESSION_SECRET` | Signs the session cookie — use a random string |
-| `AUTH_PASSWORD` | Login form password |
-| `AUTH_TOKEN` | Static token for `?token=` / `X-Auth-Token` access |
+| Variable               | Purpose                                            |
+| ---------------------- | -------------------------------------------------- |
+| `CALDAV_URL`           | CalDAV server base URL                             |
+| `CALDAV_USERNAME`      | CalDAV username                                    |
+| `CALDAV_PASSWORD`      | CalDAV password                                    |
+| `CALDAV_CALENDAR_NAME` | Calendar name (default: `Tasks`)                   |
+| `SESSION_SECRET`       | Signs the session cookie — use a random string     |
+| `AUTH_PASSWORD`        | Login form password                                |
+| `AUTH_TOKEN`           | Static token for `?token=` / `X-Auth-Token` access |
 
 Generate secrets with:
 ```bash
