@@ -3,5 +3,10 @@
     "id": "47678fe4-a315-42e9-a359-42ef6cb52995",
     "name": "home",
     "query": "+home"
+  },
+  {
+    "id": "f06d0df8-4018-418b-9004-82026dbaed9c",
+    "name": "singles",
+    "query": "+single,status:pending"
   }
 ]

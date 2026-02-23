@@ -13,7 +13,7 @@ router = APIRouter()
 
 def parse_search_query(q: str) -> dict:
     """Parse taskwarrior-inspired search query into filter components."""
-    tokens = q.strip().split()
+    tokens = q.strip().replace(",", " ").split()
     filters = {
         "include_tags": [],
         "exclude_tags": [],
@@ -44,13 +44,23 @@ def apply_search_filters(tasks: list[Task], filters: dict) -> list[Task]:
     today = date.today()
     result = tasks
 
-    # Include tags
+    # Include tags ("single" and "recurring" are virtual — not stored in t.tags)
     for tag in filters["include_tags"]:
-        result = [t for t in result if tag in t.tags]
+        if tag.lower() == "single":
+            result = [t for t in result if not t.recurrence]
+        elif tag.lower() == "recurring":
+            result = [t for t in result if t.recurrence]
+        else:
+            result = [t for t in result if tag in t.tags]
 
     # Exclude tags
     for tag in filters["exclude_tags"]:
-        result = [t for t in result if tag not in t.tags]
+        if tag.lower() == "single":
+            result = [t for t in result if t.recurrence]
+        elif tag.lower() == "recurring":
+            result = [t for t in result if not t.recurrence]
+        else:
+            result = [t for t in result if tag not in t.tags]
 
     # Due filter
     due_filter = filters["due"]

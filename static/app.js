@@ -70,21 +70,25 @@ document.addEventListener('htmx:afterRequest', function(evt) {
     }
 });
 
-// Sidebar active state
-document.querySelectorAll('.sidebar-link').forEach(link => {
-    link.addEventListener('click', function() {
-        document.querySelectorAll('.sidebar-link').forEach(l => {
-            l.classList.remove('bg-blue-50', 'text-blue-700', 'font-medium');
-        });
-        this.classList.add('bg-blue-50', 'text-blue-700', 'font-medium');
+// Sidebar active state + clear search on quick filter click (event delegation)
+document.getElementById('sidebar').addEventListener('click', function(e) {
+    const link = e.target.closest('.sidebar-link');
+    if (!link) return;
+    document.querySelectorAll('.sidebar-link').forEach(l => {
+        l.classList.remove('bg-blue-900', 'text-blue-300', 'font-medium');
     });
+    link.classList.add('bg-blue-900', 'text-blue-300', 'font-medium');
+    const input = document.getElementById('search-input');
+    if (input) input.value = '';
+    const btn = document.getElementById('save-search-btn');
+    if (btn) btn.classList.add('hidden');
 });
 
 // Search: clear active sidebar filter when searching; show/hide bookmark button
 document.getElementById('search-input')?.addEventListener('input', function() {
     if (this.value.length > 0) {
         document.querySelectorAll('.sidebar-link').forEach(l => {
-            l.classList.remove('bg-blue-50', 'text-blue-700', 'font-medium');
+            l.classList.remove('bg-blue-900', 'text-blue-300', 'font-medium');
         });
     }
     const btn = document.getElementById('save-search-btn');
