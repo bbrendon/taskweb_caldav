@@ -177,14 +177,16 @@ async def create_task(
         rrule = recurrence
 
     loc_alarm = None
-    if location_title and location_title.strip() and location_lat and location_lng:
+    _prox = (location_proximity or "ARRIVE").upper()
+    _is_car = _prox in ("CONNECT", "DISCONNECT")
+    if location_title and location_title.strip() and (_is_car or (location_lat and location_lng)):
         try:
             loc_alarm = TaskLocation(
                 title=location_title.strip(),
                 address=(location_address or "").strip(),
-                lat=float(location_lat),
-                lng=float(location_lng),
-                proximity=(location_proximity or "ARRIVE").upper(),
+                lat=float(location_lat) if location_lat else None,
+                lng=float(location_lng) if location_lng else None,
+                proximity=_prox,
             )
         except (ValueError, TypeError):
             pass
@@ -245,14 +247,16 @@ async def update_task(
         rrule = recurrence if recurrence and recurrence != "none" else None
 
     loc_alarm = None
-    if location_title and location_title.strip() and location_lat and location_lng:
+    _prox = (location_proximity or "ARRIVE").upper()
+    _is_car = _prox in ("CONNECT", "DISCONNECT")
+    if location_title and location_title.strip() and (_is_car or (location_lat and location_lng)):
         try:
             loc_alarm = TaskLocation(
                 title=location_title.strip(),
                 address=(location_address or "").strip(),
-                lat=float(location_lat),
-                lng=float(location_lng),
-                proximity=(location_proximity or "ARRIVE").upper(),
+                lat=float(location_lat) if location_lat else None,
+                lng=float(location_lng) if location_lng else None,
+                proximity=_prox,
             )
         except (ValueError, TypeError):
             pass

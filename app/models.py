@@ -10,8 +10,8 @@ PRIORITY_VALUE = {"none": 0, "H": 1, "M": 5, "L": 9}
 class TaskLocation(BaseModel):
     title: str
     address: str = ""
-    lat: float
-    lng: float
+    lat: Optional[float] = None  # None for CarPlay CONNECT/DISCONNECT triggers
+    lng: Optional[float] = None
     proximity: str = "ARRIVE"
 
 

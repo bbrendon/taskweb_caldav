@@ -8,7 +8,7 @@ A web interface for CalDAV task servers, built with FastAPI + HTMX + Tailwind CS
 
 | Mobile task list | Mobile sidebar |
 |---|---|
-| ![Mobile task list](docs/IMG_2849_preview.jpeg) | ![Mobile sidebar](docs/IMG_2848_preview.jpeg) |
+| <img src="docs/IMG_2849_preview.jpeg" width="300"> | <img src="docs/IMG_2848_preview.jpeg" width="300"> |
 
 ## Features
 

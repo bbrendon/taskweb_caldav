@@ -38,18 +38,29 @@ def get_calendar(client: Optional[caldav.DAVClient] = None):
 
 
 def _parse_location_alarm(ical) -> Optional[TaskLocation]:
-    """Walk VALARM subcomponents looking for Apple's proximity alarm."""
+    """Walk VALARM subcomponents looking for Apple's proximity alarm.
+
+    Handles two kinds:
+    - Geo-fence (ARRIVE/DEPART): has X-APPLE-STRUCTURED-LOCATION with lat/lng.
+    - CarPlay (CONNECT/DISCONNECT): no location, just the proximity value.
+    """
     for sub in getattr(ical, "subcomponents", []):
         if sub.name != "VALARM":
             continue
         if "X-APPLE-PROXIMITY" not in sub:
             continue
         proximity = str(sub["X-APPLE-PROXIMITY"]).upper()
+
+        # CarPlay connect/disconnect — no geo-fence, no structured location
+        if proximity in ("CONNECT", "DISCONNECT"):
+            title = "Getting In Car" if proximity == "CONNECT" else "Getting Out Of Car"
+            return TaskLocation(title=title, proximity=proximity)
+
         loc_prop = sub.get("X-APPLE-STRUCTURED-LOCATION")
         if not loc_prop:
             continue
         val = str(loc_prop)
-        lat, lng = 0.0, 0.0
+        lat, lng = None, None
         if val.startswith("geo:"):
             parts = val[4:].split(",")
             try:
@@ -57,7 +68,7 @@ def _parse_location_alarm(ical) -> Optional[TaskLocation]:
                 if len(parts) > 1:
                     lng = float(parts[1])
             except (ValueError, IndexError):
-                pass  # keep 0.0 defaults — still show the location by title
+                pass
         params = getattr(loc_prop, "params", {})
         title = str(params.get("X-TITLE", "")).strip() or "Location"
         address = str(params.get("X-ADDRESS", "")).strip()
@@ -167,15 +178,17 @@ def _build_location_alarm(loc: TaskLocation) -> Alarm:
 
     alarm.add("X-APPLE-PROXIMITY", loc.proximity)
 
-    geo_val = vText(f"geo:{loc.lat},{loc.lng}")
-    geo_val.params = Parameters({
-        "VALUE": "URI",
-        "X-ADDRESS": loc.address,
-        "X-APPLE-RADIUS": "0",
-        "X-APPLE-REFERENCEFRAME": "0",
-        "X-TITLE": loc.title,
-    })
-    alarm["X-APPLE-STRUCTURED-LOCATION"] = geo_val
+    # CarPlay triggers (CONNECT/DISCONNECT) have no geo-fence location
+    if loc.proximity not in ("CONNECT", "DISCONNECT") and loc.lat is not None and loc.lng is not None:
+        geo_val = vText(f"geo:{loc.lat},{loc.lng}")
+        geo_val.params = Parameters({
+            "VALUE": "URI",
+            "X-ADDRESS": loc.address,
+            "X-APPLE-RADIUS": "0",
+            "X-APPLE-REFERENCEFRAME": "0",
+            "X-TITLE": loc.title,
+        })
+        alarm["X-APPLE-STRUCTURED-LOCATION"] = geo_val
 
     alarm.add("X-WR-ALARMUID", alarm_uid)
     return alarm

@@ -133,6 +133,41 @@ function initLocationSearch() {
         });
     });
 
+    // Wire GPS / car buttons
+    document.querySelectorAll('.loc-gps-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const self = this;
+            const title = this.dataset.gpsTitle || 'My Location';
+            const proximity = this.dataset.gpsProximity || 'ARRIVE';
+            const originalHTML = this.innerHTML;
+            this.textContent = 'Getting location…';
+            this.disabled = true;
+            if (!navigator.geolocation) {
+                self.innerHTML = originalHTML;
+                self.disabled = false;
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    self.innerHTML = originalHTML;
+                    self.disabled = false;
+                    selectLocation({
+                        title: title,
+                        address: '',
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                        proximity: proximity,
+                    });
+                },
+                function() {
+                    self.innerHTML = originalHTML;
+                    self.disabled = false;
+                },
+                { timeout: 10000 }
+            );
+        });
+    });
+
     let debounceTimer = null;
 
     searchInput.addEventListener('input', function() {
@@ -179,9 +214,17 @@ function initLocationSearch() {
 function selectLocation(obj) {
     document.getElementById('loc-title-input').value = obj.title || '';
     document.getElementById('loc-address-input').value = obj.address || '';
-    document.getElementById('loc-lat-input').value = obj.lat || '';
-    document.getElementById('loc-lng-input').value = obj.lng || '';
+    document.getElementById('loc-lat-input').value = obj.lat != null ? obj.lat : '';
+    document.getElementById('loc-lng-input').value = obj.lng != null ? obj.lng : '';
     document.getElementById('loc-selected-label').textContent = obj.title || '';
+
+    // Preset buttons include a proximity; auto-set the dropdown so the user
+    // doesn't have to make a second selection for the common "Arriving X" /
+    // "Leaving X" triggers.
+    if (obj.proximity) {
+        const sel = document.getElementById('loc-proximity-select');
+        if (sel) sel.value = obj.proximity;
+    }
 
     const picker = document.getElementById('loc-picker');
     const selected = document.getElementById('loc-selected');

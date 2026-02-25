@@ -87,21 +87,28 @@
 
                     <!-- Location alarm -->
                     {% if task.location_alarm %}
-                    {% set has_coords = task.location_alarm.lng != 0.0 %}
+                    {% set loc = task.location_alarm %}
+                    {% set is_car = loc.proximity in ('CONNECT', 'DISCONNECT') %}
+                    {% set has_coords = not is_car and loc.lat is not none and loc.lng is not none %}
                     {% if has_coords %}
-                    <a href="https://maps.google.com/?q={{ task.location_alarm.lat }},{{ task.location_alarm.lng }}"
+                    <a href="https://maps.google.com/?q={{ loc.lat }},{{ loc.lng }}"
                        target="_blank" rel="noopener"
                        class="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-green-900 text-green-300 hover:bg-green-800 transition-colors"
-                       title="{{ task.location_alarm.address }}">
+                       title="{{ loc.address }}">
                     {% else %}
                     <span class="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-green-900 text-green-300"
-                          title="{{ task.location_alarm.address }}">
+                          title="{{ loc.address if not is_car else '' }}">
                     {% endif %}
+                        {% if is_car %}
+                        <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+                        {% if loc.proximity == 'CONNECT' %}Getting In Car{% else %}Getting Out Of Car{% endif %}
+                        {% else %}
                         <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
-                        {{ task.location_alarm.title }} · {% if task.location_alarm.proximity == 'ARRIVE' %}arriving{% elif task.location_alarm.proximity == 'DEPART' %}departing{% else %}leaving{% endif %}
+                        {{ loc.title }} · {% if loc.proximity == 'ARRIVE' %}arriving{% elif loc.proximity == 'DEPART' %}leaving{% endif %}
+                        {% endif %}
                     {% if has_coords %}</a>{% else %}</span>{% endif %}
                     {% endif %}
 
