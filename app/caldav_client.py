@@ -4,6 +4,7 @@ from typing import Optional
 
 import caldav
 import niquests.auth
+from dateutil import rrule as dateutil_rrule
 from icalendar import Alarm, Calendar, Parameters, Todo, vDate, vDatetime, vRecur, vText
 
 from app.config import settings
@@ -395,6 +396,19 @@ def delete_todo(calendar, uid: str) -> bool:
     return True
 
 
+def _next_occurrence(rrule_str: str, from_date: date) -> Optional[date]:
+    """Return the next recurrence date strictly after from_date."""
+    rule_str = rrule_str.removeprefix("RRULE:")
+    try:
+        dtstart = datetime(from_date.year, from_date.month, from_date.day)
+        rule = dateutil_rrule.rrulestr(f"RRULE:{rule_str}", dtstart=dtstart)
+        nxt = rule.after(dtstart)
+        return nxt.date() if nxt else None
+    except Exception as e:
+        print(f"Error computing next recurrence: {e}")
+        return None
+
+
 def toggle_complete(calendar, uid: str) -> Optional[Task]:
     existing_todo = _find_todo_by_uid(calendar, uid)
     if not existing_todo:
@@ -403,6 +417,13 @@ def toggle_complete(calendar, uid: str) -> Optional[Task]:
     existing = parse_vtodo(existing_todo)
     if not existing:
         return None
+
+    # For recurring tasks being marked complete: advance to next occurrence
+    # instead of marking permanently completed.
+    if existing.status != "COMPLETED" and existing.recurrence:
+        from_date = existing.due or date.today()
+        next_due = _next_occurrence(existing.recurrence, from_date)
+        return update_todo(calendar, uid, TaskUpdate(status="NEEDS-ACTION", due=next_due))
 
     new_status = "NEEDS-ACTION" if existing.status == "COMPLETED" else "COMPLETED"
     return update_todo(calendar, uid, TaskUpdate(status=new_status))
