@@ -209,3 +209,5 @@ __marimo__/
 # Project-specific
 .env
 notes.md
+
+debug_task.py

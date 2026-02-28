@@ -8,3 +8,4 @@ services:
       - .env
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - ./data:/app/data
