@@ -241,20 +241,37 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex items-center justify-end gap-3 pt-2 border-t border-gray-700">
+        <div class="flex items-center justify-between gap-3 pt-2 border-t border-gray-700">
+            {% if is_edit %}
             <button
                 type="button"
+                class="px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-900 rounded-lg transition-colors"
+                hx-delete="/tasks/{{ task.uid }}"
+                hx-target="#task-{{ task.uid }}"
+                hx-swap="outerHTML"
+                hx-confirm="Delete '{{ task.title }}'?"
                 onclick="closeModal()"
-                class="px-4 py-2 text-sm text-gray-400 hover:text-gray-100 hover:bg-gray-700 rounded-lg transition-colors"
             >
-                Cancel
+                Delete
             </button>
-            <button
-                type="submit"
-                class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-            >
-                {{ 'Save Changes' if is_edit else 'Create Task' }}
-            </button>
+            {% else %}
+            <div></div>
+            {% endif %}
+            <div class="flex items-center gap-3">
+                <button
+                    type="button"
+                    onclick="closeModal()"
+                    class="px-4 py-2 text-sm text-gray-400 hover:text-gray-100 hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                    {{ 'Save Changes' if is_edit else 'Create Task' }}
+                </button>
+            </div>
         </div>
     </form>
 </div>
