@@ -1,0 +1,15 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${PORT:-38000}:38000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+      DEBUG: ${DEBUG:-false}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}
+      APP_PASSWORD: ${APP_PASSWORD:-changeme}
+      CALDAV_URL: ${CALDAV_URL:-https://radicale.domain.com}
+      CALDAV_USERNAME: ${CALDAV_USERNAME:-theuser}
+      CALDAV_PASSWORD: ${CALDAV_PASSWORD:-mypassword}
+      CALDAV_CALENDAR: ${CALDAV_CALENDAR:-Tasks}
+    restart: unless-stopped

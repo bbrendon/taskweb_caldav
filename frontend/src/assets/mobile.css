@@ -1,0 +1,31 @@
+/* Mobile-specific global styles */
+
+*, *::before, *::after {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+/* Prevent iOS from zooming on input focus (inputs must be >= 16px) */
+input, select, textarea {
+  font-size: max(16px, 1em);
+}
+
+/* Use dynamic viewport for full-height layouts */
+html, body {
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+#app {
+  height: 100%;
+  height: 100dvh;
+}
+
+/* Safe area padding for notched phones */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .form-footer,
+  .task-list-container {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}

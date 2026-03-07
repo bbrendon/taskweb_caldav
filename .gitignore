@@ -1,0 +1,10 @@
+.env
+backend/venv/
+frontend/node_modules/
+frontend/dist/
+**/__pycache__/
+**/*.pyc
+task-caldav-lib/
+
+deploy.sh
+notes.md
