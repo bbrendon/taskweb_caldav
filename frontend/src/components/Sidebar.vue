@@ -94,7 +94,7 @@ import {
   AddOutline, ListOutline, CheckboxOutline, CheckmarkDoneOutline,
   AlertCircleOutline, CalendarOutline, StarOutline, RepeatOutline,
   PricetagOutline, BookmarkOutline, CloseOutline, FlashOutline,
-  ArrowForwardCircleOutline, LayersOutline, LogOutOutline,
+  ArrowForwardCircleOutline, LayersOutline, LogOutOutline, BanOutline,
 } from '@vicons/ionicons5'
 import { useRouter } from 'vue-router'
 import { authApi } from '@/api/tasks.js'
@@ -126,6 +126,7 @@ const virtualTagNav = [
   { tag: 'STARRED', label: 'Starred', icon: StarOutline },
   { tag: 'HIGH', label: 'High Priority', icon: FlashOutline },
   { tag: 'RECURRING', label: 'Recurring', icon: RepeatOutline },
+  { tag: 'SINGLE', label: 'Non-Recurring', icon: BanOutline },
   { tag: 'PARENT', label: 'Has Subtasks', icon: LayersOutline },
 ]
 
