@@ -143,11 +143,13 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { CloseOutline, ArrowBackOutline } from '@vicons/ionicons5'
 import { useTasksStore } from '@/stores/tasks.js'
 import { useUiStore } from '@/stores/ui.js'
 import RecurrenceField from './RecurrenceField.vue'
 
+const route = useRoute()
 const tasksStore = useTasksStore()
 const ui = useUiStore()
 
@@ -263,6 +265,8 @@ async function submit() {
     } else {
       const created = await tasksStore.createTask(payload)
       ui.openTask(created.uid)
+      // Re-fetch full list so server-computed virtual tags (e.g. PARENT) are correct
+      tasksStore.fetchTasks(route.query)
     }
     ui.closeForm()
     // Refresh tags sidebar
