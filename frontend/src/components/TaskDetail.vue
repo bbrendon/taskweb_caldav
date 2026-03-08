@@ -164,10 +164,21 @@ const ui = useUiStore()
 
 const subtasks = ref([])
 const loadingSubtasks = ref(false)
+const fetchedTask = ref(null)
 
 const task = computed(() => {
   if (!ui.activeTaskUid) return null
-  return tasksStore.getTask(ui.activeTaskUid)
+  return tasksStore.getTask(ui.activeTaskUid) || fetchedTask.value
+})
+
+watch(() => ui.activeTaskUid, async (uid) => {
+  fetchedTask.value = null
+  if (uid && !tasksStore.getTask(uid)) {
+    try {
+      const res = await tasksApi.get(uid)
+      if (ui.activeTaskUid === uid) fetchedTask.value = res.data
+    } catch {}
+  }
 })
 
 const isOverdue = computed(() => (task.value?.virtual_tags || []).includes('OVERDUE'))
