@@ -34,7 +34,7 @@
         <template #icon><n-icon :component="BookmarkOutline" /></template>
         Save View
       </n-button>
-      <n-button size="small" @click="ui.openCreateForm()" type="primary">
+      <n-button size="small" @click="ui.openCreateForm(ui.activeTaskUid ? tasksStore.getTask(ui.activeTaskUid) : null)" type="primary">
         <template #icon><n-icon :component="AddOutline" /></template>
         New Task
       </n-button>
@@ -60,10 +60,12 @@ import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { SearchOutline, CloseOutline, AddOutline, BookmarkOutline } from '@vicons/ionicons5'
 import { useUiStore } from '@/stores/ui.js'
+import { useTasksStore } from '@/stores/tasks.js'
 
 const route = useRoute()
 const router = useRouter()
 const ui = useUiStore()
+const tasksStore = useTasksStore()
 
 const searchText = ref(route.query.search || '')
 const showSaveDialog = ref(false)
