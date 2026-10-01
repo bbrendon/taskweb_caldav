@@ -18,7 +18,7 @@ export const useTasks = defineStore('tasks', () => {
   const tz = computed(() => config.value?.timezone ?? 'UTC')
   const allTags = computed(() => {
     const seen = new Map<string, string>()
-    for (const t of [...(config.value?.tags ?? []), ...all.value.flatMap((x) => x.tags)]) {
+    for (const t of [...(config.value?.tags ?? []), ...all.value.flatMap((x) => x.tags)].filter((x) => x.trim())) {
       if (!seen.has(t.toLowerCase())) seen.set(t.toLowerCase(), t)
     }
     return [...seen.values()].sort((a, b) => a.localeCompare(b))
