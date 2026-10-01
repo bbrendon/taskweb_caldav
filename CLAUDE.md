@@ -12,7 +12,9 @@ CalDAV server. The same calendar also syncs to iPhone Reminders.
 - `../task-caldav-lib` (separate repo, branch `v0.2`) holds all CalDAV/VTODO logic:
   parsing, writes with ETag If-Match, recurrence, alarms. Installed editable into `.venv`.
 - `config/taskweb.yaml` (gitignored; copy `taskweb.example.yaml`): timezone, tags, places.
-- `scripts/`: `dev.sh`, `seed_dev.py`, `backup_calendar.py`, `migrate_repeats.py`, `purge_completed.py`.
+- `scripts/`: `dev.sh`, `seed_dev.py`, `backup_calendar.py`, `migrate_repeats.py`, `archive_completed.py`
+  (save old completed tasks to `archive/` as .ics + .csv, optionally remove them), `purge_completed.py`
+  (delete without keeping); both share `completed_common.py`.
 
 ## Commands
 

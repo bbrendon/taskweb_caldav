@@ -10,3 +10,4 @@ backups/
 task-caldav-lib/
 config/taskweb.yaml
 build/
+archive/
