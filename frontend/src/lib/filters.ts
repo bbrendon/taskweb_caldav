@@ -120,12 +120,20 @@ function matchCondition(t: Task, c: Condition, tz: string): boolean {
   return true
 }
 
+function needsValue(c: Condition): boolean {
+  if (c.field === 'text' || c.field === 'tag') return true
+  if (c.field === 'place') return c.op === 'is' || c.op === 'isnt'
+  return false
+}
+
 export function matches(t: Task, f: Filter, tz: string, search = ''): boolean {
   if (!f.showCompleted && isDone(t)) return false
   if (!f.showDeferred && t.virtual_tags.includes('DEFERRED')) return false
   if (search && !matchSearch(t, search)) return false
-  if (!f.conditions.length) return true
-  const results = f.conditions.map((c) => matchCondition(t, c, tz))
+  // Ignore conditions still being filled in (e.g. "Tag is [choose a tag]").
+  const conditions = f.conditions.filter((c) => !needsValue(c) || (c.value !== '' && c.value !== null && c.value !== undefined))
+  if (!conditions.length) return true
+  const results = conditions.map((c) => matchCondition(t, c, tz))
   return f.match === 'all' ? results.every(Boolean) : results.some(Boolean)
 }
 
@@ -213,3 +221,73 @@ export function buildRows(all: Task[], view: View, tz: string, search: string, c
   walk(matched.filter((t) => !t.parent_uid || !ids.has(t.parent_uid)), 0)
   return rows
 }
+
+// ------------------------------------------------------------------ filter builder
+
+export type ValueKind = 'none' | 'text' | 'number' | 'tag' | 'place' | 'priority' | 'smart'
+
+export interface FieldDef {
+  field: ConditionField
+  label: string
+  ops: { op: string; label: string; value: ValueKind }[]
+}
+
+/** What the filter builder offers, in plain words. */
+export const FIELD_DEFS: FieldDef[] = [
+  { field: 'text', label: 'Text', ops: [
+    { op: 'contains', label: 'contains', value: 'text' },
+    { op: 'lacks', label: 'doesn’t contain', value: 'text' },
+  ] },
+  { field: 'tag', label: 'Tag', ops: [
+    { op: 'has', label: 'is', value: 'tag' },
+    { op: 'lacks', label: 'isn’t', value: 'tag' },
+  ] },
+  { field: 'place', label: 'Place', ops: [
+    { op: 'is', label: 'is', value: 'place' },
+    { op: 'isnt', label: 'isn’t', value: 'place' },
+    { op: 'any', label: 'is set', value: 'none' },
+    { op: 'none', label: 'isn’t set', value: 'none' },
+  ] },
+  { field: 'priority', label: 'Priority', ops: [
+    { op: 'is', label: 'is', value: 'priority' },
+    { op: 'isnt', label: 'isn’t', value: 'priority' },
+  ] },
+  { field: 'due', label: 'Due', ops: [
+    { op: 'within', label: 'within the next … days', value: 'number' },
+    { op: 'before', label: 'sooner than … days from today', value: 'number' },
+    { op: 'after', label: 'later than … days from today', value: 'number' },
+    { op: 'any', label: 'is set', value: 'none' },
+    { op: 'none', label: 'isn’t set', value: 'none' },
+  ] },
+  { field: 'repeat', label: 'Repeats', ops: [
+    { op: 'yes', label: 'in any way', value: 'none' },
+    { op: 'after', label: 'after done', value: 'none' },
+    { op: 'fixed', label: 'on a schedule', value: 'none' },
+    { op: 'none', label: 'never', value: 'none' },
+  ] },
+  { field: 'starred', label: 'Starred', ops: [
+    { op: 'is', label: 'yes', value: 'none' },
+    { op: 'isnt', label: 'no', value: 'none' },
+  ] },
+  { field: 'smart', label: 'Status', ops: [
+    { op: 'has', label: 'is', value: 'smart' },
+    { op: 'lacks', label: 'isn’t', value: 'smart' },
+  ] },
+]
+
+/** Virtual tags offered under "Status", with readable names. */
+export const SMART_LABELS: Record<string, string> = {
+  OVERDUE: 'Overdue', DUE_TODAY: 'Due today', DUE_WEEK: 'Due this week', DEFERRED: 'Deferred',
+  HAS_SUBTASKS: 'Has subtasks', CHILD: 'A subtask', TAGGED: 'Tagged', UNTAGGED: 'Untagged',
+}
+
+export function defaultCondition(field: ConditionField): Condition {
+  const def = FIELD_DEFS.find((d) => d.field === field)!
+  const op = def.ops[0]
+  const value = op.value === 'number' ? 7 : op.value === 'priority' ? 'high' : op.value === 'smart' ? 'OVERDUE' : ''
+  return { field, op: op.op, value }
+}
+
+export const cloneFilter = (f: Filter): Filter => ({ ...f, conditions: f.conditions.map((c) => ({ ...c })) })
+
+export const sameFilter = (a: Filter, b: Filter) => JSON.stringify(a) === JSON.stringify(b)

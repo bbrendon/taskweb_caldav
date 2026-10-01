@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { dayLabel, dayOf, dueLabel, repeatLabel, urgency } from '@/lib/dates'
 import { placeOf, type Row } from '@/lib/filters'
 import { useTasks } from '@/stores/tasks'
@@ -12,7 +12,10 @@ const props = defineProps<{
   cursor: boolean
   collapsed: boolean
 }>()
-const emit = defineEmits<{ open: []; toggle: []; check: []; star: [] }>()
+const emit = defineEmits<{
+  open: []; toggle: []; check: []; star: []
+  dragstart: []; dragend: []; drop: []
+}>()
 
 const tasks = useTasks()
 const t = computed(() => props.row.task)
@@ -23,17 +26,91 @@ const repeat = computed(() => repeatLabel(t.value))
 const place = computed(() => placeOf(t.value))
 const brokenPlace = computed(() => t.value.location_alarm && t.value.location_alarm.lon === null)
 const PRIORITY_LABEL = { high: 'High', medium: 'Medium', low: 'Low', none: '' }
+// ---- swipe (touch): right = complete, left = star
+const SWIPE_AT = 80
+const dx = ref(0)
+const settling = ref(false)
+let start: { x: number; y: number; id: number } | null = null
+let mode: 'undecided' | 'swipe' | 'scroll' = 'undecided'
+let suppressClick = false
+
+function onPointerDown(e: PointerEvent) {
+  if (e.pointerType !== 'touch') return
+  start = { x: e.clientX, y: e.clientY, id: e.pointerId }
+  mode = 'undecided'
+}
+function onPointerMove(e: PointerEvent) {
+  if (!start || e.pointerId !== start.id) return
+  const x = e.clientX - start.x
+  const y = e.clientY - start.y
+  if (mode === 'undecided') {
+    if (Math.abs(x) > 10 && Math.abs(x) > Math.abs(y) * 1.5) {
+      mode = 'swipe'
+      try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId) } catch { /* not capturable */ }
+    } else if (Math.abs(y) > 10) {
+      mode = 'scroll'
+    }
+  }
+  if (mode === 'swipe') dx.value = Math.max(-120, Math.min(120, x))
+}
+function onPointerUp() {
+  if (mode === 'swipe') {
+    suppressClick = true
+    if (dx.value >= SWIPE_AT) emit('check')
+    else if (dx.value <= -SWIPE_AT) emit('star')
+  }
+  start = null
+  mode = 'undecided'
+  settling.value = true
+  dx.value = 0
+  window.setTimeout(() => { settling.value = false }, 200)
+}
+function onClick() {
+  if (suppressClick) { suppressClick = false; return }
+  emit('open')
+}
+
+// ---- drag (mouse): drop a task onto this one to make it a subtask
+const draggable = window.matchMedia('(pointer: fine)').matches
+const dropping = ref(false)
+function onDragStart(e: DragEvent) {
+  e.dataTransfer?.setData('text/plain', t.value.uid)
+  if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
+  emit('dragstart')
+}
+function onDrop(e: DragEvent) {
+  e.preventDefault()
+  dropping.value = false
+  emit('drop')
+}
+
 const shortDay = (v: string | null) => (v ? dayLabel(dayOf(v, tz.value), tz.value) : '')
 </script>
 
 <template>
+  <div class="swipe" :class="{ armed: Math.abs(dx) >= SWIPE_AT }">
+  <div class="behind" aria-hidden="true">
+    <span v-if="dx > 0" class="act done-act"><Icon name="check" :size="18" />{{ done ? 'Reopen' : 'Complete' }}</span>
+    <span v-else-if="dx < 0" class="act star-act">{{ t.starred ? 'Unstar' : 'Star' }}<Icon name="star" :size="18" /></span>
+  </div>
   <div
     class="row"
     role="row"
     :data-uid="t.uid"
-    :class="[`u-${level}`, { done, selected, cursor }]"
+    :class="[`u-${level}`, { done, selected, cursor, settling, dropping }]"
+    :style="dx ? { transform: `translateX(${dx}px)` } : undefined"
     :aria-selected="selected"
-    @click="emit('open')"
+    :draggable="draggable"
+    @click="onClick"
+    @pointerdown="onPointerDown"
+    @pointermove="onPointerMove"
+    @pointerup="onPointerUp"
+    @pointercancel="onPointerUp"
+    @dragstart="onDragStart"
+    @dragend="emit('dragend')"
+    @dragover.prevent="dropping = true"
+    @dragleave="dropping = false"
+    @drop="onDrop"
   >
     <div class="cell check-cell" role="gridcell">
       <button
@@ -96,11 +173,30 @@ const shortDay = (v: string | null) => (v ? dayLabel(dayOf(v, tz.value), tz.valu
       <div v-else-if="col === 'completed'" class="cell muted" role="gridcell">{{ shortDay(t.completed_at) }}</div>
     </template>
   </div>
+  </div>
 </template>
 
 <style scoped>
+.swipe { position: relative; overflow: hidden; }
+.behind {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 18px;
+  background: var(--line);
+  color: var(--muted);
+  font-weight: 700;
+}
+.act { display: inline-flex; align-items: center; gap: 6px; }
+.star-act { margin-left: auto; }
+.armed .behind { color: var(--accent-ink); }
+.armed .behind:has(.done-act) { background: var(--accent); }
+.armed .behind:has(.star-act) { background: var(--star); }
+.row.settling { transition: transform 0.2s ease; }
+.row.dropping { box-shadow: inset 0 0 0 2px var(--accent); background: var(--accent-soft); }
 .row {
   position: relative;
+  background: var(--surface);
+  touch-action: pan-y;
   display: grid;
   grid-template-columns: var(--grid);
   align-items: center;

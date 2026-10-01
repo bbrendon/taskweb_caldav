@@ -18,12 +18,15 @@ const props = defineProps<{
   selectedUid: string | null
   cursorUid: string | null
   collapsed: Set<string>
+  filterActive: boolean
+  filterOpen: boolean
 }>()
 const emit = defineEmits<{
   open: [uid: string]
   created: [uid: string]
   toggle: [uid: string]
   menu: []
+  filter: []
   columns: [cols: string[]]
   sort: [sort: Sort[]]
 }>()
@@ -76,6 +79,39 @@ async function check(uid: string) {
   }
 }
 
+// ---- drag a task onto another to nest it
+const dragUid = ref<string | null>(null)
+const overTop = ref(false)
+
+function isDescendant(uid: string, ancestor: string): boolean {
+  let cur = tasks.byUid.get(uid)?.parent_uid
+  while (cur) {
+    if (cur === ancestor) return true
+    cur = tasks.byUid.get(cur)?.parent_uid
+  }
+  return false
+}
+
+async function nest(target: string | null) {
+  const uid = dragUid.value
+  dragUid.value = null
+  overTop.value = false
+  if (!uid || uid === target) return
+  const t = tasks.byUid.get(uid)
+  if (!t || t.parent_uid === target) return
+  if (target && isDescendant(target, uid)) {
+    toast('A task can’t go under its own subtask.')
+    return
+  }
+  try {
+    await tasks.update(uid, { parent_uid: target })
+    const parent = target ? tasks.byUid.get(target)?.title : null
+    toast(parent ? `Moved under “${parent}”` : 'Moved to the top level', {
+      label: 'Undo', run: () => tasks.update(uid, { parent_uid: t.parent_uid }).catch(() => {}),
+    })
+  } catch { /* surfaced by the store */ }
+}
+
 function star(uid: string) {
   const t = tasks.byUid.get(uid)
   if (t) tasks.update(uid, { starred: !t.starred }).catch(() => {})
@@ -101,10 +137,27 @@ defineExpose({
         <input id="search" ref="searchInput" v-model="search" class="field" type="search"
                placeholder="Search" autocomplete="off" @keydown.esc="search = ''; searchInput?.blur()" />
       </div>
+      <button class="icon-btn filter-btn" :class="{ on: filterOpen, active: filterActive }" :aria-expanded="filterOpen"
+              aria-label="Filter" title="Filter" @click="emit('filter')">
+        <Icon name="sliders" />
+      </button>
       <span class="cols"><ColumnMenu :columns="columns" @change="emit('columns', $event)" /></span>
     </header>
 
+    <slot name="filters" />
+
     <QuickAdd ref="quick" :view="view" @created="emit('created', $event)" />
+
+    <div
+      v-if="dragUid && tasks.byUid.get(dragUid)?.parent_uid"
+      class="top-drop"
+      :class="{ over: overTop }"
+      @dragover.prevent="overTop = true"
+      @dragleave="overTop = false"
+      @drop.prevent="nest(null)"
+    >
+      Drop here to move to the top level
+    </div>
 
     <div class="grid" role="grid" :aria-rowcount="rows.length">
       <div class="row-head" role="row">
@@ -136,6 +189,9 @@ defineExpose({
         @toggle="emit('toggle', row.task.uid)"
         @check="check(row.task.uid)"
         @star="star(row.task.uid)"
+        @dragstart="dragUid = row.task.uid"
+        @dragend="dragUid = null; overTop = false"
+        @drop="nest(row.task.uid)"
       />
 
       <div v-if="!rows.length && !tasks.loading" class="empty">
@@ -183,6 +239,12 @@ h1 {
   text-overflow: ellipsis;
 }
 .n { color: var(--muted); font-size: var(--step-1); }
+.filter-btn { position: relative; }
+.filter-btn.on { background: var(--accent-soft); color: var(--ink); }
+.filter-btn.active::after {
+  content: ''; position: absolute; top: 6px; right: 6px;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+}
 .search { position: relative; margin-left: auto; width: min(260px, 40vw); }
 .search .field { padding-left: 32px; background: var(--ground); border-color: transparent; }
 .search .field:focus { background: var(--raised); }
@@ -205,6 +267,16 @@ h1 {
 .sort:hover { color: var(--ink); }
 .arrow { color: var(--accent); }
 
+.top-drop {
+  margin: 6px 12px;
+  padding: 10px;
+  border: 1.5px dashed var(--faint);
+  border-radius: var(--radius-m);
+  color: var(--muted);
+  text-align: center;
+}
+.top-drop.over { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+
 .empty {
   display: grid;
   justify-items: start;
@@ -221,6 +293,16 @@ h1 {
   .search .field { height: 40px; }
   .cols { display: none; }
   .row-head { display: none; }
-  .empty { padding-left: 56px; }
+  .top-drop {
+  margin: 6px 12px;
+  padding: 10px;
+  border: 1.5px dashed var(--faint);
+  border-radius: var(--radius-m);
+  color: var(--muted);
+  text-align: center;
+}
+.top-drop.over { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+
+.empty { padding-left: 56px; }
 }
 </style>

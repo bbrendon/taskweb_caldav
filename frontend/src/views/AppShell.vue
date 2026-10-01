@@ -4,8 +4,9 @@ import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/Icon.vue'
 import SideNav from '@/components/SideNav.vue'
 import TaskEditor from '@/components/TaskEditor.vue'
+import FilterEditor from '@/components/FilterEditor.vue'
 import TaskList from '@/components/TaskList.vue'
-import { buildRows } from '@/lib/filters'
+import { buildRows, cloneFilter, matches, sameFilter, type Filter } from '@/lib/filters'
 import { dismiss, toasts } from '@/lib/toast'
 import { useTasks } from '@/stores/tasks'
 import { useViews } from '@/stores/views'
@@ -34,7 +35,44 @@ function toggleCollapsed(uid: string) {
 }
 
 const viewId = computed(() => decodeURIComponent(String(route.params.id ?? 'pending')))
-const view = computed(() => views.find(viewId.value))
+const baseView = computed(() => views.find(viewId.value))
+
+// Filter editing works on a draft; the list follows the draft live until it is saved or undone.
+const filterOpen = ref(false)
+const draft = ref<Filter | null>(null)
+const view = computed(() => (draft.value ? { ...baseView.value, filter: draft.value } : baseView.value))
+const dirty = computed(() => !!draft.value && !sameFilter(draft.value, baseView.value.filter))
+const draftModel = computed({
+  get: () => draft.value ?? baseView.value.filter,
+  set: (f: Filter) => { draft.value = cloneFilter(f) },
+})
+const matchCount = computed(() => tasks.all.filter((t) => matches(t, view.value.filter, tasks.tz)).length)
+watch(viewId, () => { draft.value = null })
+
+function toggleFilter() {
+  filterOpen.value = !filterOpen.value
+  if (!filterOpen.value && !dirty.value) draft.value = null
+}
+
+function saveSearch(name: string) {
+  views.saveView({ ...baseView.value, name, filter: cloneFilter(view.value.filter), builtin: false })
+  draft.value = null
+}
+
+function saveAsNew(name: string) {
+  const id = `saved-${Date.now().toString(36)}`
+  views.saveView({ id, name, filter: cloneFilter(view.value.filter), sort: sort.value, builtin: false })
+  views.setColumns(id, columns.value)
+  draft.value = null
+  router.push(`/list/${id}`)
+}
+
+function deleteSearch() {
+  views.deleteView(baseView.value.id)
+  draft.value = null
+  filterOpen.value = false
+  router.push('/list/pending')
+}
 const sort = computed(() => views.sortFor(view.value))
 const columns = computed(() => views.columnsFor(view.value))
 const rows = computed(() =>
@@ -131,7 +169,25 @@ onBeforeUnmount(() => {
         @menu="navOpen = true"
         @columns="views.setColumns(view.id, $event)"
         @sort="views.setSort(view.id, $event)"
-      />
+        :filter-open="filterOpen"
+        :filter-active="dirty || (!view.builtin && view.filter.conditions.length > 0)"
+        @filter="toggleFilter"
+      >
+        <template #filters>
+          <FilterEditor
+            v-if="filterOpen"
+            v-model="draftModel"
+            :view="baseView"
+            :dirty="dirty"
+            :count="matchCount"
+            @save="saveSearch"
+            @save-as-new="saveAsNew"
+            @remove="deleteSearch"
+            @reset="draft = null"
+            @close="toggleFilter"
+          />
+        </template>
+      </TaskList>
     </main>
 
     <Transition name="slide">
