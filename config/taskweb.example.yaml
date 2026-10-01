@@ -1,0 +1,19 @@
+# Copy to config/taskweb.yaml and edit. Changes need an app restart.
+
+# IANA time zone used for "today", overdue and due-this-week.
+timezone: America/Los_Angeles
+
+# "Due This Week" = today plus the next N-1 days.
+due_this_week_days: 7
+
+# Tags offered in the editor (any other tag still works).
+tags: [Home, Work]
+
+# Preset places for location tasks. Get coordinates from Apple/Google Maps
+# (long-press a spot). radius is in meters; iOS works best with 100-300.
+places:
+  - name: Home
+    address: 1 Example St, Town
+    lat: 37.3318
+    lon: -122.0312
+    radius: 150

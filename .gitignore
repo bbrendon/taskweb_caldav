@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+node_modules/
+backend/app/static/
+data/
+backups/
+*.egg-info/
+.DS_Store
+task-caldav-lib/
+config/taskweb.yaml
+build/

@@ -1,0 +1,15 @@
+.env
+.git
+.venv
+**/__pycache__
+**/node_modules
+frontend/dist
+backend/app/static
+backend/tests
+backups
+data
+scripts
+task-caldav-lib/.venv
+task-caldav-lib/.git
+task-caldav-lib/tests
+task-caldav-lib/*.egg-info

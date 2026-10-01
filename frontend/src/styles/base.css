@@ -1,0 +1,148 @@
+@import '@fontsource-variable/atkinson-hyperlegible-next';
+
+/* ------------------------------------------------------------------ tokens */
+:root {
+  color-scheme: light;
+  --ground: #eef1f4;      /* cool fog: app background */
+  --surface: #f8fafb;     /* list + panels */
+  --raised: #ffffff;      /* inputs, editor */
+  --ink: #1c2530;         /* primary text */
+  --muted: #5e6b78;       /* secondary text */
+  --faint: #8d99a5;       /* placeholders, disabled */
+  --line: #dde3e9;        /* separators */
+  --accent: #2f7dbf;      /* horizon blue: selection, focus, primary actions */
+  --accent-ink: #ffffff;
+  --accent-soft: #dcebf7;
+
+  /* urgency rail: far -> soon -> late */
+  --rail-none: transparent;
+  --rail-far: #8fb3d9;
+  --rail-week: #d9962b;
+  --rail-today: #e0702c;
+  --rail-late: #cf4338;
+  --star: #d9962b;
+
+  --font: 'Atkinson Hyperlegible Next Variable', system-ui, -apple-system, sans-serif;
+  --step--1: 0.8125rem;   /* 13px meta */
+  --step-0: 0.9375rem;    /* 15px body/rows */
+  --step-1: 1.125rem;     /* 18px panel titles */
+  --step-2: 1.5rem;       /* 24px list title */
+
+  --row-h: 36px;
+  --sidebar-w: 232px;
+  --editor-w: 420px;
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --shadow-panel: 0 8px 28px rgb(28 37 48 / 0.14);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --ground: #151b22;
+  --surface: #1b232c;
+  --raised: #222c37;
+  --ink: #e3e8ee;
+  --muted: #9aa6b2;
+  --faint: #6c7884;
+  --line: #2c3742;
+  --accent: #6fb0ea;
+  --accent-ink: #0f2233;
+  --accent-soft: #23384d;
+  --rail-far: #4f7ba6;
+  --rail-week: #c98a26;
+  --rail-today: #d8692a;
+  --rail-late: #e0564b;
+  --shadow-panel: 0 8px 28px rgb(0 0 0 / 0.45);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --ground: #151b22;
+    --surface: #1b232c;
+    --raised: #222c37;
+    --ink: #e3e8ee;
+    --muted: #9aa6b2;
+    --faint: #6c7884;
+    --line: #2c3742;
+    --accent: #6fb0ea;
+    --accent-ink: #0f2233;
+    --accent-soft: #23384d;
+    --rail-far: #4f7ba6;
+    --rail-week: #c98a26;
+    --rail-today: #d8692a;
+    --rail-late: #e0564b;
+    --shadow-panel: 0 8px 28px rgb(0 0 0 / 0.45);
+  }
+}
+
+@media (pointer: coarse) {
+  :root { --row-h: 52px; --step-0: 1rem; }
+}
+
+/* ------------------------------------------------------------------ base */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #app { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: var(--step-0);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+button { cursor: pointer; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-s);
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* Shared controls */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 32px; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: var(--radius-m);
+  background: var(--raised);
+}
+.btn:hover { border-color: var(--faint); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn-primary:hover { filter: brightness(1.06); border-color: transparent; }
+.btn-ghost { background: transparent; border-color: transparent; }
+.btn-ghost:hover { background: var(--accent-soft); border-color: transparent; }
+.btn-danger { color: var(--rail-late); }
+
+.icon-btn {
+  display: inline-grid; place-items: center;
+  width: 32px; height: 32px;
+  border: 0; border-radius: var(--radius-m); background: transparent; color: var(--muted);
+}
+.icon-btn:hover { background: var(--accent-soft); color: var(--ink); }
+
+.field {
+  width: 100%; height: 34px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: var(--radius-m);
+  background: var(--raised);
+}
+.field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+textarea.field { height: auto; min-height: 96px; padding: 8px 10px; resize: vertical; line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

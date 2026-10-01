@@ -1,0 +1,20 @@
+services:
+  taskweb:
+    build: .
+    container_name: taskweb
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATA_DIR: /app/data
+      TASKWEB_CONFIG: /app/config/taskweb.yaml
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    ports:
+      - "38000:38000"
+    volumes:
+      - ./data:/app/data
+      - ./config/taskweb.yaml:/app/config/taskweb.yaml:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:38000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
