@@ -370,7 +370,8 @@ dt { padding-top: 7px; color: var(--muted); font-size: var(--step--1); }
 dd { margin: 0; min-width: 0; }
 .inline { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .inline .field { width: auto; flex: 1 1 140px; }
-.date { flex: 0 1 150px !important; }
+.date { flex: 0 1 140px !important; }
+.inline > .btn-ghost { padding: 0 8px; }
 .time { flex: 0 1 120px !important; }
 .note { display: flex; align-items: center; gap: 4px; margin: 6px 0 0; color: var(--muted); font-size: var(--step--1); }
 .inline .note { margin: 0; }
